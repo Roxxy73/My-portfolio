@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "portfolio-whatsapp-notifications",
+  "main": "whatsapp-worker.js",
+  "compatibility_date": "2026-09-30",
+  "vars": {
+    "ALLOWED_ORIGIN": "https://YOUR-GITHUB-USERNAME.github.io",
+    "GRAPH_API_VERSION": "vXX.0",
+    "WHATSAPP_PHONE_NUMBER_ID": "SET_IN_CLOUDFLARE",
+    "WHATSAPP_RECIPIENT": "SET_IN_CLOUDFLARE",
+    "WHATSAPP_TEMPLATE_NAME": "new_portfolio_message",
+    "WHATSAPP_TEMPLATE_LANGUAGE": "en"
+  }
+}

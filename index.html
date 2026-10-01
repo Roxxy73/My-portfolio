@@ -254,7 +254,7 @@
             <div class="contact-content">
                 <div class="contact-form-column" data-aos="fade-right">
                     <h2 class="contact-subtitle">Message Me</h2>
-                    <form class="contact-form" id="contact-form">
+                    <form class="contact-form" id="contact-form" data-endpoint="">
                         <div class="contact-form-row">
                             <label class="visually-hidden" for="contact-name">Name</label>
                             <input id="contact-name" name="name" type="text" placeholder="Name" autocomplete="name" required>
@@ -265,7 +265,13 @@
                         <input id="contact-subject" name="subject" type="text" placeholder="Subject" required>
                         <label class="visually-hidden" for="contact-message">Message</label>
                         <textarea id="contact-message" name="message" placeholder="Message" rows="5" required></textarea>
+                        <div class="contact-honeypot" aria-hidden="true">
+                            <label for="contact-website">Leave this field empty</label>
+                            <input id="contact-website" name="website" type="text" tabindex="-1" autocomplete="off">
+                        </div>
                         <button class="contact-submit" type="submit">Send Message</button>
+                        <p class="contact-form-note">Once configured, messages will be sent to WhatsApp without opening the app.</p>
+                        <p class="contact-form-status contact-form-note" id="contact-form-status" role="status" aria-live="polite"></p>
                     </form>
                 </div>
                 <aside class="contact-info" data-aos="fade-left">
@@ -377,16 +383,55 @@
         });
 
         const contactForm = document.querySelector("#contact-form");
-        contactForm.addEventListener("submit", (event) => {
+        const contactFormStatus = document.querySelector("#contact-form-status");
+        const contactSubmitButton = contactForm.querySelector(".contact-submit");
+
+        contactForm.addEventListener("submit", async (event) => {
             event.preventDefault();
+
+            const endpoint = contactForm.dataset.endpoint.trim();
+            if (!endpoint) {
+                contactFormStatus.textContent = "The contact form is not configured yet. Please email me directly.";
+                contactFormStatus.dataset.state = "error";
+                return;
+            }
+
             const formData = new FormData(contactForm);
-            const senderName = String(formData.get("name")).trim();
-            const senderEmail = String(formData.get("email")).trim();
-            const subject = String(formData.get("subject")).trim();
-            const message = String(formData.get("message")).trim();
-            const whatsappMessage = `Hello Raji, my name is ${senderName}.\nEmail: ${senderEmail}\nSubject: ${subject}\n\n${message}`;
-            const whatsappUrl = `https://wa.me/2348155318100?text=${encodeURIComponent(whatsappMessage)}`;
-            window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+            const payload = Object.fromEntries(
+                ["name", "email", "subject", "message", "website"].map((field) => [
+                    field,
+                    String(formData.get(field) || "").trim()
+                ])
+            );
+
+            contactSubmitButton.disabled = true;
+            contactSubmitButton.textContent = "Sending...";
+            contactFormStatus.textContent = "Sending your message...";
+            contactFormStatus.dataset.state = "sending";
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                if (!response.ok || result.ok !== true) {
+                    throw new Error(result.error || "The message could not be sent.");
+                }
+
+                contactForm.reset();
+                contactFormStatus.textContent = "Thanks! Your message was sent.";
+                contactFormStatus.dataset.state = "success";
+            } catch (error) {
+                contactFormStatus.textContent = "Sorry, your message could not be sent. Please try again or email me directly.";
+                contactFormStatus.dataset.state = "error";
+                console.error("Contact form delivery failed:", error);
+            } finally {
+                contactSubmitButton.disabled = false;
+                contactSubmitButton.textContent = "Send Message";
+            }
         });
 
         AOS.init({
