@@ -698,6 +698,36 @@ body {
 .project-technologies .fa-js{
     color: #f7df1e;
 }
+.project-link{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-start;
+    margin-top: 0.35rem;
+    padding: 0.65rem 1.1rem;
+    border: 1px solid rgba(255, 255, 0, 0.75);
+    border-radius: 999px;
+    background: yellow;
+    color: #111827;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+.project-link:hover{
+    transform: translateY(-2px);
+    background: #ffffff;
+    color: #111827;
+}
+.project-link:focus-visible{
+    outline: 3px solid #ffffff;
+    outline-offset: 3px;
+}
+.project-link[aria-disabled="true"]{
+    cursor: not-allowed;
+    opacity: 0.72;
+}
 .project-card:hover .project-description{
     color: #e2e8f0;
 }
